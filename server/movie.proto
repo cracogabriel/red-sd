@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package movies;
+
+message Movie {
+  string id            = 1;
+  string title         = 2;
+  string plot          = 3;
+  string fullplot      = 4;
+  repeated string genres     = 5;
+  repeated string cast       = 6;
+  repeated string directors  = 7;
+  repeated string countries  = 8;
+  repeated string languages  = 9;
+  string released      = 10;  // ISO 8601: "1903-12-01"
+  int32  runtime       = 11;
+  string rated         = 12;
+  int32  year          = 13;
+  string type          = 14;
+  string poster        = 15;
+  int32  num_mflix_comments = 16;
+  string lastupdated   = 17;
+}
+
+// Requisicoes
+
+// Buscar/Deletar por ID
+message MovieIdRequest {
+  string id = 1;
+}
+
+// Listar por ator
+message ActorRequest {
+  string actor = 1;
+}
+
+// Listar por gênero/categoria
+message GenreRequest {
+  string genre = 1;
+}
+
+
+// Respostas
+
+// Resposta com um único filme (Get, Create, Update)
+message MovieResponse {
+  bool   success = 1;
+  string error   = 2;   // preenchido se success = false
+  Movie  movie   = 3;
+}
+
+// Resposta com lista de filmes (ListByActor, ListByGenre)
+message MovieListResponse {
+  bool   success        = 1;
+  string error          = 2;
+  repeated Movie movies = 3;
+}
+
+// Resposta simples para Delete
+message DeleteResponse {
+  bool   success = 1;
+  string error   = 2;
+  string message = 3;
+}
+
+message Request {
+  enum Operation {
+    CREATE         = 0;
+    GET            = 1;
+    UPDATE         = 2;
+    DELETE         = 3;
+    LIST_BY_ACTOR  = 4;
+    LIST_BY_GENRE  = 5;
+  }
+
+  Operation operation = 1;
+
+  Movie          movie    = 2;  // CREATE, UPDATE
+  MovieIdRequest by_id    = 3;  // GET, DELETE
+  ActorRequest   by_actor = 4;  // LIST_BY_ACTOR
+  GenreRequest   by_genre = 5;  // LIST_BY_GENRE
+}
+
+message Response {
+  bool   success = 1;
+  string error   = 2;
+
+  //apenas um desses será preenchido por response
+  Movie            movie      = 3;  // GET, CREATE, UPDATE
+  repeated Movie   movies     = 4;  // LIST_BY_ACTOR, LIST_BY_GENRE
+  string           message    = 5;  // DELETE
+}
