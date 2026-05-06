@@ -1,3 +1,4 @@
+import re
 import os
 import socket
 import threading
@@ -175,7 +176,8 @@ def handle_op_delete(request, movies):
 def handle_op_list_by_actor(request, movies):
     print("handling LIST_BY_ACTOR operation")
     try:
-        response = movies.find({"cast": request.by_actor.actor}).limit(4)
+        actor_query = re.compile(request.by_actor.actor, re.IGNORECASE)
+        response = movies.find({"cast": actor_query}).limit(20)
         movie_list = [doc_to_movie(doc) for doc in response]
 
         if not movie_list:
@@ -190,7 +192,8 @@ def handle_op_list_by_actor(request, movies):
 def handle_op_list_by_genre(request, movies):
     print("handling LIST_BY_GENRE operation")
     try:
-        response = movies.find({"genres": request.by_genre.genre}).limit(4)
+        genre_query = re.compile(request.by_genre.genre, re.IGNORECASE)
+        response = movies.find({"genres": genre_query}).limit(20)
         movie_list = [doc_to_movie(doc) for doc in response]
 
         if not movie_list:
@@ -204,7 +207,7 @@ def handle_op_list_by_genre(request, movies):
 def handle_client(conn, addr, movies):
     try:
         while True:
-            data = conn.recv(4096) 
+            data = conn.recv(65536) 
             if not data:
                 print(f"client {addr} disconnected. returning...")
                 break
