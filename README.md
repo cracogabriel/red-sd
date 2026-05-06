@@ -74,14 +74,14 @@ red/
 
 > **The server must be started before the client.**
 
-**1. Start the server** — see [`server/README.md`](server/README.md) for setup instructions, including how to configure the `.env` file with your database credentials.
+**1. Start the server.** See [`server/README.md`](server/README.md) for setup instructions, including how to configure the `.env` file with your database credentials.
 
 ```bash
 cd server/
 python3 server.py
 ```
 
-**2. Start the client** — see [`client/README.md`](client/README.md) for full instructions.
+**2. Start the client.** See [`client/README.md`](client/README.md) for full instructions.
 
 ```bash
 cd client/
@@ -117,7 +117,7 @@ message Request {
 }
 ```
 
-Only the field relevant to the chosen operation is populated — the others are left empty. This means the client and server share a single message type for all requests, and the server switches behavior based on the `operation` field alone, without needing to define a separate message type per operation.
+Only the field relevant to the chosen operation is populated, the others are left empty. This means the client and server share a single message type for all requests, and the server switches behavior based on the `operation` field alone, without needing to define a separate message type per operation.
 
 The same idea applies to the response side with a **single `Response` message**:
 
@@ -132,4 +132,68 @@ message Response {
 }
 ```
 
-A failed response always has `success = false` and a descriptive `error` string. A successful response populates only the field that matches the operation — a single movie, a list of movies, or a plain message string for DELETE. This keeps the protocol simple: one request type in, one response type out, regardless of the operation.
+A failed response always has `success = false` and a descriptive `error` string. A successful response populates only the field that matches the operation: a single movie, a list of movies, or a plain message string for DELETE. This keeps the protocol simple: one request type in, one response type out, regardless of the operation.
+
+---
+
+## Request/Response Encapsulation
+
+The diagram below shows how data is packed on the client side, travels over TCP as raw bytes, and is unpacked on the server side, and how the response follows the same path in reverse.
+
+```
+CLIENT (Java)                                          SERVER (Python)
+─────────────────────────────────────────────────────────────────────
+
+  User action (e.g. "search by genre: Action")
+          │
+          ▼
+  ┌───────────────────────┐
+  │  Request              │
+  │  ┌─────────────────┐  │
+  │  │ operation:      │  │       serialized with
+  │  │  LIST_BY_GENRE  │  │  ──── .toByteArray() ────────────────────►
+  │  ├─────────────────┤  │              │
+  │  │ by_genre:       │  │              │ raw bytes over TCP :5000
+  │  │  genre="Action" │  │              │
+  │  └─────────────────┘  │              │
+  └───────────────────────┘              │
+                                         ▼
+                                 ┌───────────────────────┐
+                                 │  Request              │
+                                 │  ┌─────────────────┐  │
+                                 │  │ operation:      │  │
+                                 │  │  LIST_BY_GENRE  │  │  deserialized with
+                                 │  ├─────────────────┤  │  ParseFromString()
+                                 │  │ by_genre:       │  │
+                                 │  │  genre="Action" │  │
+                                 │  └─────────────────┘  │
+                                 └───────────────────────┘
+                                         │
+                                         ▼
+                                   MongoDB query
+                                         │
+                                         ▼
+                                 ┌───────────────────────┐
+                                 │  Response             │
+                                 │  ┌─────────────────┐  │
+                                 │  │ success: true   │  │
+                                 │  ├─────────────────┤  │  serialized with
+                                 │  │ movies: [...]   │  │  SerializeToString()
+                                 │  └─────────────────┘  │
+                                 └───────────────────────┘
+                                              │
+                        raw bytes over TCP    │
+             ◄────────────────────────────────┘
+
+  ┌───────────────────────┐
+  │  Response             │
+  │  ┌─────────────────┐  │
+  │  │ success: true   │  │  deserialized with
+  │  ├─────────────────┤  │  Response.parseFrom()
+  │  │ movies: [...]   │  │
+  │  └─────────────────┘  │
+  └───────────────────────┘
+          │
+          ▼
+  Results displayed in GUI table
+```
