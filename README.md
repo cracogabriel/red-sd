@@ -141,59 +141,35 @@ A failed response always has `success = false` and a descriptive `error` string.
 The diagram below shows how data is packed on the client side, travels over TCP as raw bytes, and is unpacked on the server side, and how the response follows the same path in reverse.
 
 ```
-CLIENT (Java)                                          SERVER (Python)
-─────────────────────────────────────────────────────────────────────
+  CLIENT (Java)                                        SERVER (Python)
+  ─────────────────────────────────────────────────────────────────────
 
   User action (e.g. "search by genre: Action")
-          │
-          ▼
-  ┌───────────────────────┐
-  │  Request              │
-  │  ┌─────────────────┐  │
-  │  │ operation:      │  │       serialized with
-  │  │  LIST_BY_GENRE  │  │  ──── .toByteArray() ────────────────────►
-  │  ├─────────────────┤  │              │
-  │  │ by_genre:       │  │              │ raw bytes over TCP :5000
-  │  │  genre="Action" │  │              │
-  │  └─────────────────┘  │              │
-  └───────────────────────┘              │
-                                         ▼
-                                 ┌───────────────────────┐
-                                 │  Request              │
-                                 │  ┌─────────────────┐  │
-                                 │  │ operation:      │  │
-                                 │  │  LIST_BY_GENRE  │  │  deserialized with
-                                 │  ├─────────────────┤  │  ParseFromString()
-                                 │  │ by_genre:       │  │
-                                 │  │  genre="Action" │  │
-                                 │  └─────────────────┘  │
-                                 └───────────────────────┘
-                                         │
-                                         ▼
-                                   MongoDB query
-                                         │
-                                         ▼
-                                 ┌───────────────────────┐
-                                 │  Response             │
-                                 │  ┌─────────────────┐  │
-                                 │  │ success: true   │  │
-                                 │  ├─────────────────┤  │  serialized with
-                                 │  │ movies: [...]   │  │  SerializeToString()
-                                 │  └─────────────────┘  │
-                                 └───────────────────────┘
-                                              │
-                        raw bytes over TCP    │
-             ◄────────────────────────────────┘
-
-  ┌───────────────────────┐
-  │  Response             │
-  │  ┌─────────────────┐  │
-  │  │ success: true   │  │  deserialized with
-  │  ├─────────────────┤  │  Response.parseFrom()
-  │  │ movies: [...]   │  │
-  │  └─────────────────┘  │
-  └───────────────────────┘
-          │
-          ▼
+        │
+        ▼
+  ┌──────────────────────┐                      ┌──────────────────────┐
+  │ Request              │   .toByteArray()     │ Request              │
+  │ ┌──────────────────┐ │──── bytes/TCP ──────►│ ┌──────────────────┐ │ ParseFromString()
+  │ │ operation:       │ │                      │ │ operation:       │ │
+  │ │  LIST_BY_GENRE   │ │                      │ │  LIST_BY_GENRE   │ │
+  │ ├──────────────────┤ │                      │ ├──────────────────┤ │
+  │ │ by_genre:        │ │                      │ │ by_genre:        │ │
+  │ │  genre="Action"  │ │                      │ │  genre="Action"  │ │
+  │ └──────────────────┘ │                      │ └──────────────────┘ │
+  └──────────────────────┘                      └──────────────────────┘
+                                                           │
+                                                     MongoDB query
+                                                           │
+                                                           ▼
+  ┌──────────────────────┐                      ┌──────────────────────┐
+  │ Response             │   .parseFrom()       │ Response             │ SerializeToString()
+  │ ┌──────────────────┐ │◄─── bytes/TCP ───────│ ┌──────────────────┐ │
+  │ │ success: true    │ │                      │ │ success: true    │ │
+  │ ├──────────────────┤ │                      │ ├──────────────────┤ │
+  │ │ movies: [...]    │ │                      │ │ movies: [...]    │ │
+  │ └──────────────────┘ │                      │ └──────────────────┘ │
+  └──────────────────────┘                      └──────────────────────┘
+        │
+        ▼
   Results displayed in GUI table
 ```
