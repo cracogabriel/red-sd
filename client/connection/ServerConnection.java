@@ -8,15 +8,22 @@ import movies.MovieOuterClass;
 
 public class ServerConnection {
 
+    private final String       host;
+    private final int          port; 
     private final Socket       socket;
     private final OutputStream output;
     private final InputStream  input;
 
     public ServerConnection(String host, int port) throws Exception {
+        this.host   = host;           
+        this.port   = port;           
         this.socket = new Socket(host, port);
         this.output = socket.getOutputStream();
         this.input  = socket.getInputStream();
     }
+
+    public String getHost() { return host; }  
+    public int    getPort() { return port; } 
 
     /**
      * Envia um Request serializado e retorna o Response deserializado.

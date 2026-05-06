@@ -117,7 +117,7 @@ public class UpdateMovieDialog {
 
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 String field = (String) tableModel.getValueAt(i, 0);
-                String value = (String) tableModel.getValueAt(i, 1);
+                String value = tableModel.getValueAt(i, 1).toString();
 
                 switch (field) {
                     case "title"     -> movieBuilder.setTitle(value);

@@ -2,6 +2,5 @@ server/.env
 server/venv/
 server/__pycache__/
 
-client/movies
 client/protobuf-java-3.21.12.jar
 client/bin

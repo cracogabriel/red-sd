@@ -25,7 +25,7 @@ public class MainWindow {
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
-        JLabel label = new JLabel("connected to server!", SwingConstants.CENTER);
+        JLabel label = new JLabel("connected to server at " + conn.getHost() + ":" + conn.getPort(), SwingConstants.CENTER);
         frame.add(label, BorderLayout.CENTER);
 
         frame.add(buildButtonPanel(), BorderLayout.SOUTH);

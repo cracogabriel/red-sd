@@ -18,7 +18,7 @@ public class DeleteMovieDialog {
 
     public void show() {
         JDialog dialog = new JDialog(parent, "delete movie", true);
-        dialog.setSize(300, 150);
+        dialog.setSize(500, 250);
         dialog.setLocationRelativeTo(parent);
         dialog.setLayout(new BorderLayout());
 
