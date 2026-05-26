@@ -173,3 +173,25 @@ The diagram below shows how data is packed on the client side, travels over TCP 
         ▼
   Results displayed in GUI table
 ```
+
+---
+
+## Authors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/GabrielCraco">
+        <img src="https://github.com/GabrielCraco.png" width="80px" alt="Gabriel Craco Tasarz"/><br/>
+        <sub><b>Gabriel Craco Tasarz</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/leonardoozima">
+        <img src="https://github.com/leonardoozima.png" width="80px" alt="Leonardo Jun'Ity Ozima"/><br/>
+        <sub><b>Leonardo Jun'Ity Ozima</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
